@@ -395,7 +395,7 @@ def health_check() -> dict[str, Any]:
         return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
 
-if __name__ == "__main__":  # quick manual check: python -m nl2sql.db
+if __name__ == "__main__":  # quick manual check: python db.py
     import json
 
     print(json.dumps(health_check(), indent=2))
