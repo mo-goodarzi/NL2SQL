@@ -1,0 +1,488 @@
+# Evaluation test set for the Olist text-to-SQL agent.
+#
+# This file is the intellectual core of the project. The agent is replaceable;
+# a well-designed test set is what proves you can measure. Every number in your
+# report traces back to these 42 cases.
+#
+# ---------------------------------------------------------------------------
+# RULES
+#
+# 1. VERIFY EVERY GOLD QUERY AGAINST THE REAL DATABASE BEFORE TRUSTING A SCORE.
+#    These have been checked for schema and syntax correctness, but not against
+#    real Olist data. A wrong gold query silently caps your accuracy and is
+#    miserable to debug later. Run each one, eyeball the result, fix anything
+#    that looks off, and only then record a baseline.
+#
+# 2. NEVER copy a question from here into prompts.FEW_SHOT_EXAMPLES. That is
+#    leakage: the score stops measuring generalisation and starts measuring
+#    memorisation, and the number becomes indefensible in an interview.
+#
+# 3. `ordered: true` means row order is part of correctness (top-N questions).
+#    Everything else is compared as an unordered multiset.
+#
+# 4. Where a query could tie at the LIMIT boundary, a deterministic tiebreak
+#    column is included in the ORDER BY. Without it, two equally correct
+#    queries can return different rows and one gets marked wrong.
+#
+# 5. Expect to FAIL some of these at baseline. A test set you pass immediately
+#    teaches you nothing and leaves no room to demonstrate improvement.
+#
+# Fields: id, question, difficulty (easy|medium|hard), tags, gold_sql,
+#         ordered (default false), notes (optional).
+# ---------------------------------------------------------------------------
+
+# =========================================================================
+# EASY -- single table, no joins. Baseline should mostly pass these.
+# =========================================================================
+
+- id: q001
+  question: How many orders are in the database?
+  difficulty: easy
+  tags: [count]
+  gold_sql: |
+    SELECT COUNT(*) AS order_count FROM orders
+
+- id: q002
+  question: How many sellers are registered?
+  difficulty: easy
+  tags: [count]
+  gold_sql: |
+    SELECT COUNT(*) AS seller_count FROM sellers
+
+- id: q003
+  question: What are the distinct order statuses?
+  difficulty: easy
+  tags: [distinct]
+  gold_sql: |
+    SELECT DISTINCT order_status FROM orders
+
+- id: q004
+  question: How many orders were canceled?
+  difficulty: easy
+  tags: [count, filter]
+  gold_sql: |
+    SELECT COUNT(*) AS canceled_orders
+    FROM orders
+    WHERE order_status = 'canceled'
+  notes: Tests whether the model uses the lower-case status value.
+
+- id: q005
+  question: How many products are there?
+  difficulty: easy
+  tags: [count]
+  gold_sql: |
+    SELECT COUNT(*) AS product_count FROM products
+
+- id: q006
+  question: How many different states do customers come from?
+  difficulty: easy
+  tags: [count, distinct]
+  gold_sql: |
+    SELECT COUNT(DISTINCT customer_state) AS state_count FROM customers
+
+- id: q007
+  question: How many order items have been sold in total?
+  difficulty: easy
+  tags: [count]
+  gold_sql: |
+    SELECT COUNT(*) AS item_count FROM order_items
+  notes: order_item_id is a line number, not a quantity -- counting rows is correct.
+
+- id: q008
+  question: How many reviews gave a score of 5?
+  difficulty: easy
+  tags: [count, filter]
+  gold_sql: |
+    SELECT COUNT(*) AS five_star_reviews
+    FROM order_reviews
+    WHERE review_score = 5
+
+- id: q009
+  question: What payment types are available?
+  difficulty: easy
+  tags: [distinct]
+  gold_sql: |
+    SELECT DISTINCT payment_type FROM order_payments
+
+- id: q010
+  question: How many customers are based in the state of SP?
+  difficulty: easy
+  tags: [count, filter]
+  gold_sql: |
+    SELECT COUNT(*) AS sp_customers
+    FROM customers
+    WHERE customer_state = 'SP'
+
+- id: q011
+  question: What is the average freight value per item?
+  difficulty: easy
+  tags: [aggregate]
+  gold_sql: |
+    SELECT AVG(freight_value) AS avg_freight FROM order_items
+
+- id: q012
+  question: What is the highest price paid for a single item?
+  difficulty: easy
+  tags: [aggregate]
+  gold_sql: |
+    SELECT MAX(price) AS max_price FROM order_items
+
+# =========================================================================
+# MEDIUM -- one or two joins, grouping, date handling.
+# =========================================================================
+
+- id: q013
+  question: How many orders are there for each order status?
+  difficulty: medium
+  tags: [group_by, count]
+  gold_sql: |
+    SELECT order_status, COUNT(*) AS order_count
+    FROM orders
+    GROUP BY order_status
+
+- id: q014
+  question: How many orders were placed in 2017?
+  difficulty: medium
+  tags: [date_filter, count]
+  gold_sql: |
+    SELECT COUNT(*) AS order_count
+    FROM orders
+    WHERE strftime('%Y', order_purchase_timestamp) = '2017'
+  notes: Dates are TEXT; requires strftime rather than EXTRACT.
+
+- id: q015
+  question: What is the average review score across all reviews?
+  difficulty: medium
+  tags: [aggregate]
+  gold_sql: |
+    SELECT AVG(review_score) AS avg_score FROM order_reviews
+
+- id: q016
+  question: What is the total revenue from all items sold, excluding freight?
+  difficulty: medium
+  tags: [aggregate]
+  gold_sql: |
+    SELECT SUM(price) AS total_revenue FROM order_items
+
+- id: q017
+  question: How many unique customers have placed orders?
+  difficulty: medium
+  tags: [distinct, join]
+  gold_sql: |
+    SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers
+    FROM orders o
+    JOIN customers c ON c.customer_id = o.customer_id
+  notes: The customer_unique_id trap -- customer_id is per-order, not per-person.
+
+- id: q018
+  question: Which are the top 5 states by number of customers?
+  difficulty: medium
+  tags: [group_by, order_by, limit]
+  ordered: true
+  gold_sql: |
+    SELECT customer_state, COUNT(*) AS customer_count
+    FROM customers
+    GROUP BY customer_state
+    ORDER BY customer_count DESC, customer_state ASC
+    LIMIT 5
+
+- id: q019
+  question: What is the average payment value for each payment type?
+  difficulty: medium
+  tags: [group_by, aggregate]
+  gold_sql: |
+    SELECT payment_type, AVG(payment_value) AS avg_payment
+    FROM order_payments
+    GROUP BY payment_type
+
+- id: q020
+  question: How many orders were placed each month in 2018?
+  difficulty: medium
+  tags: [date_filter, group_by]
+  gold_sql: |
+    SELECT strftime('%Y-%m', order_purchase_timestamp) AS month,
+           COUNT(*) AS order_count
+    FROM orders
+    WHERE strftime('%Y', order_purchase_timestamp) = '2018'
+    GROUP BY month
+
+- id: q021
+  question: How many orders contain more than one item?
+  difficulty: medium
+  tags: [group_by, having, subquery]
+  gold_sql: |
+    SELECT COUNT(*) AS multi_item_orders
+    FROM (
+      SELECT order_id
+      FROM order_items
+      GROUP BY order_id
+      HAVING COUNT(*) > 1
+    )
+
+- id: q022
+  question: List the top 10 cities by number of customers.
+  difficulty: medium
+  tags: [group_by, order_by, limit]
+  ordered: true
+  gold_sql: |
+    SELECT customer_city, COUNT(*) AS customer_count
+    FROM customers
+    GROUP BY customer_city
+    ORDER BY customer_count DESC, customer_city ASC
+    LIMIT 10
+
+- id: q023
+  question: How many delivered orders were there in 2018?
+  difficulty: medium
+  tags: [date_filter, filter, count]
+  gold_sql: |
+    SELECT COUNT(*) AS delivered_2018
+    FROM orders
+    WHERE order_status = 'delivered'
+      AND strftime('%Y', order_purchase_timestamp) = '2018'
+
+- id: q024
+  question: What is the average number of installments for credit card payments?
+  difficulty: medium
+  tags: [filter, aggregate]
+  gold_sql: |
+    SELECT AVG(payment_installments) AS avg_installments
+    FROM order_payments
+    WHERE payment_type = 'credit_card'
+
+- id: q025
+  question: How many products are there in each product category?
+  difficulty: medium
+  tags: [group_by, count]
+  gold_sql: |
+    SELECT product_category_name, COUNT(*) AS product_count
+    FROM products
+    GROUP BY product_category_name
+
+- id: q026
+  question: How many orders received a review score of 2 or lower?
+  difficulty: medium
+  tags: [filter, count, distinct]
+  gold_sql: |
+    SELECT COUNT(DISTINCT order_id) AS poor_reviewed_orders
+    FROM order_reviews
+    WHERE review_score <= 2
+
+- id: q027
+  question: What is the total revenue generated by sellers in each state?
+  difficulty: medium
+  tags: [join, group_by, aggregate]
+  gold_sql: |
+    SELECT s.seller_state, SUM(oi.price) AS revenue
+    FROM order_items oi
+    JOIN sellers s ON s.seller_id = oi.seller_id
+    GROUP BY s.seller_state
+
+- id: q028
+  question: What is the average price of items sold by each seller state?
+  difficulty: medium
+  tags: [join, group_by, aggregate]
+  gold_sql: |
+    SELECT s.seller_state, AVG(oi.price) AS avg_price
+    FROM order_items oi
+    JOIN sellers s ON s.seller_id = oi.seller_id
+    GROUP BY s.seller_state
+
+- id: q029
+  question: Which 5 sellers have shipped the most items?
+  difficulty: medium
+  tags: [group_by, order_by, limit]
+  ordered: true
+  gold_sql: |
+    SELECT seller_id, COUNT(*) AS item_count
+    FROM order_items
+    GROUP BY seller_id
+    ORDER BY item_count DESC, seller_id ASC
+    LIMIT 5
+
+# =========================================================================
+# HARD -- three or more tables, the Portuguese category join, date maths,
+# subqueries, and conditional aggregation.
+# =========================================================================
+
+- id: q030
+  question: What is the total revenue for each product category, using English category names?
+  difficulty: hard
+  tags: [join, group_by, aggregate, translation]
+  gold_sql: |
+    SELECT t.product_category_name_english AS category,
+           SUM(oi.price) AS revenue
+    FROM order_items oi
+    JOIN products p ON p.product_id = oi.product_id
+    JOIN product_category_translation t
+      ON t.product_category_name = p.product_category_name
+    GROUP BY t.product_category_name_english
+  notes: Requires the translation join -- the classic empty-result trap.
+
+- id: q031
+  question: Which are the top 5 English product categories by number of items sold?
+  difficulty: hard
+  tags: [join, group_by, order_by, limit, translation]
+  ordered: true
+  gold_sql: |
+    SELECT t.product_category_name_english AS category,
+           COUNT(*) AS items_sold
+    FROM order_items oi
+    JOIN products p ON p.product_id = oi.product_id
+    JOIN product_category_translation t
+      ON t.product_category_name = p.product_category_name
+    GROUP BY t.product_category_name_english
+    ORDER BY items_sold DESC, category ASC
+    LIMIT 5
+
+- id: q032
+  question: What is the average review score for each English product category?
+  difficulty: hard
+  tags: [join, group_by, aggregate, translation]
+  gold_sql: |
+    SELECT t.product_category_name_english AS category,
+           AVG(r.review_score) AS avg_score
+    FROM order_reviews r
+    JOIN orders o ON o.order_id = r.order_id
+    JOIN order_items oi ON oi.order_id = o.order_id
+    JOIN products p ON p.product_id = oi.product_id
+    JOIN product_category_translation t
+      ON t.product_category_name = p.product_category_name
+    GROUP BY t.product_category_name_english
+  notes: Five-table join. A review is counted once per item in the order.
+
+- id: q033
+  question: What is the average number of days between purchase and delivery for delivered orders?
+  difficulty: hard
+  tags: [date_math, filter, aggregate]
+  gold_sql: |
+    SELECT AVG(julianday(order_delivered_customer_date)
+               - julianday(order_purchase_timestamp)) AS avg_delivery_days
+    FROM orders
+    WHERE order_status = 'delivered'
+      AND order_delivered_customer_date IS NOT NULL
+  notes: Requires julianday for date arithmetic in SQLite.
+
+- id: q034
+  question: How many customers have placed more than one order?
+  difficulty: hard
+  tags: [join, group_by, having, subquery]
+  gold_sql: |
+    SELECT COUNT(*) AS repeat_customers
+    FROM (
+      SELECT c.customer_unique_id
+      FROM orders o
+      JOIN customers c ON c.customer_id = o.customer_id
+      GROUP BY c.customer_unique_id
+      HAVING COUNT(*) > 1
+    )
+
+- id: q035
+  question: What was the total revenue for each month of 2017?
+  difficulty: hard
+  tags: [join, date_filter, group_by, aggregate]
+  gold_sql: |
+    SELECT strftime('%Y-%m', o.order_purchase_timestamp) AS month,
+           SUM(oi.price) AS revenue
+    FROM order_items oi
+    JOIN orders o ON o.order_id = oi.order_id
+    WHERE strftime('%Y', o.order_purchase_timestamp) = '2017'
+    GROUP BY month
+
+- id: q036
+  question: What percentage of delivered orders arrived later than the estimated delivery date?
+  difficulty: hard
+  tags: [conditional_aggregate, date_math, filter]
+  gold_sql: |
+    SELECT 100.0 * SUM(
+             CASE WHEN julianday(order_delivered_customer_date)
+                       > julianday(order_estimated_delivery_date)
+                  THEN 1 ELSE 0 END
+           ) / COUNT(*) AS pct_late
+    FROM orders
+    WHERE order_status = 'delivered'
+      AND order_delivered_customer_date IS NOT NULL
+  notes: Conditional aggregation plus a float cast to avoid integer division.
+
+- id: q037
+  question: What is the average number of items per order?
+  difficulty: hard
+  tags: [subquery, aggregate]
+  gold_sql: |
+    SELECT AVG(item_count) AS avg_items_per_order
+    FROM (
+      SELECT order_id, COUNT(*) AS item_count
+      FROM order_items
+      GROUP BY order_id
+    )
+
+- id: q038
+  question: Which 3 customer states have the highest average order value?
+  difficulty: hard
+  tags: [join, group_by, order_by, limit, subquery]
+  ordered: true
+  gold_sql: |
+    SELECT customer_state, AVG(order_total) AS avg_order_value
+    FROM (
+      SELECT c.customer_state AS customer_state,
+             o.order_id AS order_id,
+             SUM(oi.price) AS order_total
+      FROM orders o
+      JOIN customers c ON c.customer_id = o.customer_id
+      JOIN order_items oi ON oi.order_id = o.order_id
+      GROUP BY o.order_id, c.customer_state
+    )
+    GROUP BY customer_state
+    ORDER BY avg_order_value DESC, customer_state ASC
+    LIMIT 3
+  notes: Must aggregate to order level first, or multi-item orders skew the average.
+
+- id: q039
+  question: How many products have never been ordered?
+  difficulty: hard
+  tags: [left_join, null_check, count]
+  gold_sql: |
+    SELECT COUNT(*) AS never_ordered
+    FROM products p
+    LEFT JOIN order_items oi ON oi.product_id = p.product_id
+    WHERE oi.product_id IS NULL
+
+- id: q040
+  question: What is the average time in days between order purchase and order approval?
+  difficulty: hard
+  tags: [date_math, aggregate, null_check]
+  gold_sql: |
+    SELECT AVG(julianday(order_approved_at)
+               - julianday(order_purchase_timestamp)) AS avg_approval_days
+    FROM orders
+    WHERE order_approved_at IS NOT NULL
+
+- id: q041
+  question: Which 5 English product categories have the worst average review score?
+  difficulty: hard
+  tags: [join, group_by, order_by, limit, translation]
+  ordered: true
+  gold_sql: |
+    SELECT t.product_category_name_english AS category,
+           AVG(r.review_score) AS avg_score
+    FROM order_reviews r
+    JOIN orders o ON o.order_id = r.order_id
+    JOIN order_items oi ON oi.order_id = o.order_id
+    JOIN products p ON p.product_id = oi.product_id
+    JOIN product_category_translation t
+      ON t.product_category_name = p.product_category_name
+    GROUP BY t.product_category_name_english
+    ORDER BY avg_score ASC, category ASC
+    LIMIT 5
+  notes: Tests that "worst" maps to ascending order.
+
+- id: q042
+  question: What share of total payment value comes from each payment type, as a percentage?
+  difficulty: hard
+  tags: [group_by, aggregate, subquery, percentage]
+  gold_sql: |
+    SELECT payment_type,
+           100.0 * SUM(payment_value)
+             / (SELECT SUM(payment_value) FROM order_payments) AS pct_of_total
+    FROM order_payments
+    GROUP BY payment_type
