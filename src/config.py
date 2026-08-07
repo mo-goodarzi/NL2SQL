@@ -100,6 +100,11 @@ class Settings(BaseSettings):
     include_sample_values: bool = True
     sample_values_per_column: int = 3
 
+    #: A second model call per question to turn the result into one sentence.
+    #: Worth it in the demo, wasted in evaluation -- set to False for eval
+    #: runs to halve cost per sweep. Read by ``nodes.explain``.
+    explain_answers: bool = True
+
     # ------------------------------------------------------------------
     # Observability (Step 5) -- entirely optional, must fail soft
     # ------------------------------------------------------------------
