@@ -83,6 +83,7 @@ def answer(question: str, model: str | None = None) -> dict[str, Any]:
         "system": SYSTEM_NAME,
         "question": question,
         "sql": None,
+        "raw_response": None,
         "ok": False,
         "columns": None,
         "rows": [],
@@ -114,6 +115,8 @@ def answer(question: str, model: str | None = None) -> dict[str, Any]:
     except LLMError as exc:
         result["error"] = f"Model call failed: {exc}"
         return result
+
+    result["raw_response"] = raw
 
     # --- 2. Handle the two non-SQL outcomes --------------------------------
     # UNANSWERABLE is checked against the raw response, before extraction.

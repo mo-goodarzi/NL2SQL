@@ -239,7 +239,7 @@ def assert_safe(sql: str) -> str:
     return sql
 
 
-if __name__ == "__main__":  # python -m nl2sql.guardrails
+if __name__ == "__main__":  # python guardrails.py
     samples = [
         "SELECT * FROM orders",
         "WITH x AS (SELECT 1 AS n) SELECT n FROM x",
