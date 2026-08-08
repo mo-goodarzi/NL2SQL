@@ -215,9 +215,13 @@ API_URL=http://localhost:8000 streamlit run app/ui.py   # terminal 2
 
 ### Docker
 
-Both services run as separate containers on the same compose network, with
-`data/` mounted as a volume rather than baked into the image (the SQLite file
-is large and regenerable, so it doesn't belong in a build layer).
+Both services run as separate containers on the same compose network.
+Locally, `data/` is mounted as a volume (`docker-compose.yml`) so the
+container always sees your real, current database; the image also has
+`data/olist.db` baked in at build time via `COPY` (tracked with Git LFS,
+since a plain `git push` of a ~200MB file would exceed GitHub's per-file
+limit) so the same image is deployable standalone, with no volume, on a
+platform like Railway.
 
 ```bash
 docker compose build
@@ -230,7 +234,7 @@ docker compose up -d
   `localhost`)
 
 `docker-entrypoint.sh` builds `data/olist.db` from `data/raw/*.csv` on first
-boot if the mounted `data/` volume doesn't already have a database in it —
+boot if neither the mounted volume nor the image already has a database —
 same as the local `scripts/load_data.py` step, just run automatically inside
 the container. Both services read the same `.env` file (`env_file:` in
 compose), so set it up exactly as in [Setup](#setup) first.
@@ -238,6 +242,42 @@ compose), so set it up exactly as in [Setup](#setup) first.
 ```bash
 docker compose down          # stop and remove the containers
 ```
+
+### Deploying to Railway
+
+Railway builds directly from the `Dockerfile` — no compose support, so the
+API and UI are two separate Railway services pointed at the same GitHub repo:
+
+1. **New Project → Deploy from GitHub repo**, select this repo. Railway
+   creates one service from the `Dockerfile`; rename it `api`.
+2. **Add a second service** from the same repo (`+ New → GitHub Repo`, same
+   repo again); rename it `ui`.
+3. For each service, under **Settings → Deploy**, set a **Custom Start
+   Command** overriding the image's default `CMD ["api"]`:
+   - `api` service: `./docker-entrypoint.sh api`
+   - `ui` service: `./docker-entrypoint.sh ui`
+4. Under **Settings → Networking**, enable **Public Networking** for both
+   services (Railway assigns each a `*.up.railway.app` domain and injects
+   `$PORT` — `docker-entrypoint.sh` already binds to it).
+5. Set environment variables per service (**Variables** tab). Paste raw
+   values with **no surrounding quotes** — unlike `pydantic-settings` and
+   `docker-compose`, Railway's variable input treats quote characters as part
+   of the value literally, so a quoted key will fail auth:
+   - Both services: `LLM_PROVIDER`, `OPENAI_API_KEY` (or `ANTHROPIC_API_KEY`),
+     and the `LANGFUSE_*` keys if you want tracing.
+   - `ui` service only: `API_URL` = the `api` service's public domain (e.g.
+     `https://api-production-xxxx.up.railway.app`). Railway can also
+     reference another service's domain directly —
+     `API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}` — using whatever you
+     named the API service in step 1.
+6. Deploy. `data/olist.db` is already baked into the image (step 0, see
+   above), so there's no first-boot database build to wait on.
+
+This was verified locally by building the image and running it exactly as
+Railway would — no volume, `$PORT` injected, only `--env-file` — not by an
+actual Railway deploy (no account available in this environment). If the
+build fails specifically on `COPY data/olist.db`, Railway didn't pull the
+Git LFS object during checkout; check that service's build log first.
 
 ## Evaluation
 

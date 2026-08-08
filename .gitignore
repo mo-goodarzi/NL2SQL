@@ -217,4 +217,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 data/*
+# ...except the built database itself (tracked via Git LFS), which the
+# Docker image bakes in at build time for deployment -- see the Dockerfile.
+!data/olist.db
 .DS_Store

@@ -14,9 +14,11 @@ COPY src/ src/
 COPY app/ app/
 COPY scripts/ scripts/
 
-# data/ is mounted as a volume at runtime (see docker-compose.yml); it is not
-# baked into the image because the SQLite db is large and regenerable.
-RUN mkdir -p data
+# Locally (docker-compose.yml), data/ is mounted as a volume and this COPY is
+# shadowed by the mount. For a platform with no volume step of its own (e.g.
+# Railway), the image needs the database baked in -- data/olist.db is tracked
+# via Git LFS specifically so this COPY has something to find.
+COPY data/olist.db data/olist.db
 
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh

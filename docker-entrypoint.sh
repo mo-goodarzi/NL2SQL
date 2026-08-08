@@ -15,10 +15,12 @@ fi
 
 case "$1" in
     api)
-        exec uvicorn app.api:app --host 0.0.0.0 --port 8000
+        # $PORT is set dynamically by platforms like Railway; falls back to
+        # the fixed port docker-compose.yml expects for local use.
+        exec uvicorn app.api:app --host 0.0.0.0 --port "${PORT:-8000}"
         ;;
     ui)
-        exec streamlit run app/ui.py --server.address 0.0.0.0 --server.port 8501
+        exec streamlit run app/ui.py --server.address 0.0.0.0 --server.port "${PORT:-8501}"
         ;;
     *)
         exec "$@"
