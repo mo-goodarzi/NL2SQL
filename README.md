@@ -213,6 +213,32 @@ uvicorn app.api:app --reload --port 8000          # terminal 1
 API_URL=http://localhost:8000 streamlit run app/ui.py   # terminal 2
 ```
 
+### Docker
+
+Both services run as separate containers on the same compose network, with
+`data/` mounted as a volume rather than baked into the image (the SQLite file
+is large and regenerable, so it doesn't belong in a build layer).
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+- API: `http://localhost:8000` (`/docs` for the OpenAPI page)
+- UI: `http://localhost:8501` — talks to the `api` service over the internal
+  Docker network (`API_URL=http://api:8000`, set in `docker-compose.yml`, not
+  `localhost`)
+
+`docker-entrypoint.sh` builds `data/olist.db` from `data/raw/*.csv` on first
+boot if the mounted `data/` volume doesn't already have a database in it —
+same as the local `scripts/load_data.py` step, just run automatically inside
+the container. Both services read the same `.env` file (`env_file:` in
+compose), so set it up exactly as in [Setup](#setup) first.
+
+```bash
+docker compose down          # stop and remove the containers
+```
+
 ## Evaluation
 
 ```bash
