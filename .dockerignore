@@ -1,0 +1,16 @@
+.git
+.gitignore
+.DS_Store
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+data/
+eval/reports/
+experiments/
+.env
+.env.*
+!.env.example
+README.md
+LICENSE

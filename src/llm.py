@@ -331,18 +331,33 @@ def _call_anthropic(
     }
 
 
+#: Reasoning-family models (gpt-5*, o1/o3/o4*) reject any temperature other
+#: than their fixed default (1) -- confirmed empirically, not documented
+#: consistently. settings.temperature (0.0, for reproducible SQL generation)
+#: is silently unenforceable on these; callers should treat eval runs against
+#: them as non-deterministic.
+_FIXED_TEMPERATURE_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+
+
+def _supports_temperature(model: str) -> bool:
+    return not model.startswith(_FIXED_TEMPERATURE_PREFIXES)
+
+
 def _call_openai(
     client: Any, model: str, system: str, user: str,
     temperature: float, max_tokens: int, stop: list[str] | None,
 ) -> tuple[str, dict[str, int]]:
     resp = client.chat.completions.create(
         model=model,
-        temperature=temperature,
-        max_tokens=max_tokens,
+        # max_tokens is deprecated across the Chat Completions API and
+        # rejected outright by reasoning-family models; max_completion_tokens
+        # works on every model tested, old and new.
+        max_completion_tokens=max_tokens,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
+        **({"temperature": temperature} if _supports_temperature(model) else {}),
         **({"stop": stop} if stop else {}),
     )
     text = resp.choices[0].message.content or ""

@@ -1,0 +1,1056 @@
+{
+  "label": "v2_selfcorrect",
+  "system": "agent",
+  "timestamp": "2026-08-08T15:25:53.928210+00:00",
+  "duration_s": 37.0,
+  "git_commit": "703ea87",
+  "config": {
+    "model": "gpt-4o-mini",
+    "temperature": 0.0,
+    "max_retries": 3,
+    "use_self_correction": true,
+    "use_schema_retrieval": false,
+    "schema_top_k": null,
+    "use_few_shot": false,
+    "include_sample_values": true
+  },
+  "prompt": {
+    "prompt_version": "v1",
+    "use_few_shot": false,
+    "few_shot_count": 0
+  },
+  "usage": {
+    "calls": 84,
+    "input_tokens": 16561,
+    "output_tokens": 3112,
+    "cache_read_tokens": 55552,
+    "cache_write_tokens": 0,
+    "cost_usd": 0.005185,
+    "cost_incomplete": false,
+    "mean_latency_ms": 1500.2,
+    "model": "gpt-4o-mini",
+    "pricing_verified_on": "2026-08-05"
+  },
+  "summary": {
+    "n": 42,
+    "correct": 32,
+    "accuracy": 0.7619,
+    "by_difficulty": {
+      "easy": {
+        "n": 12,
+        "correct": 10,
+        "accuracy": 0.8333
+      },
+      "medium": {
+        "n": 17,
+        "correct": 12,
+        "accuracy": 0.7059
+      },
+      "hard": {
+        "n": 13,
+        "correct": 10,
+        "accuracy": 0.7692
+      }
+    },
+    "by_tag": {
+      "count": {
+        "n": 14,
+        "correct": 11,
+        "accuracy": 0.7857
+      },
+      "distinct": {
+        "n": 5,
+        "correct": 5,
+        "accuracy": 1.0
+      },
+      "filter": {
+        "n": 8,
+        "correct": 5,
+        "accuracy": 0.625
+      },
+      "aggregate": {
+        "n": 15,
+        "correct": 14,
+        "accuracy": 0.9333
+      },
+      "group_by": {
+        "n": 18,
+        "correct": 11,
+        "accuracy": 0.6111
+      },
+      "date_filter": {
+        "n": 4,
+        "correct": 4,
+        "accuracy": 1.0
+      },
+      "join": {
+        "n": 10,
+        "correct": 7,
+        "accuracy": 0.7
+      },
+      "order_by": {
+        "n": 6,
+        "correct": 3,
+        "accuracy": 0.5
+      },
+      "limit": {
+        "n": 6,
+        "correct": 3,
+        "accuracy": 0.5
+      },
+      "having": {
+        "n": 2,
+        "correct": 0,
+        "accuracy": 0.0
+      },
+      "subquery": {
+        "n": 5,
+        "correct": 2,
+        "accuracy": 0.4
+      },
+      "translation": {
+        "n": 4,
+        "correct": 4,
+        "accuracy": 1.0
+      },
+      "date_math": {
+        "n": 3,
+        "correct": 2,
+        "accuracy": 0.6667
+      },
+      "conditional_aggregate": {
+        "n": 1,
+        "correct": 0,
+        "accuracy": 0.0
+      },
+      "left_join": {
+        "n": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      "null_check": {
+        "n": 2,
+        "correct": 2,
+        "accuracy": 1.0
+      },
+      "percentage": {
+        "n": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      }
+    },
+    "failure_classes": {
+      "wrong_result": 9,
+      "rounding": 1
+    },
+    "matched_by_permutation": 0,
+    "both_empty": 0,
+    "mean_latency_ms": 3374.9,
+    "p95_latency_ms": 6269.9
+  },
+  "cases": [
+    {
+      "id": "q001",
+      "question": "How many orders are in the database?",
+      "difficulty": "easy",
+      "tags": [
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS order_count FROM orders",
+      "predicted_sql": "SELECT COUNT(DISTINCT o.order_id) AS total_orders FROM orders o",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3701.033709003241,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q002",
+      "question": "How many sellers are registered?",
+      "difficulty": "easy",
+      "tags": [
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS seller_count FROM sellers",
+      "predicted_sql": "SELECT COUNT(*) AS seller_count FROM sellers",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3676.178207999328,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q003",
+      "question": "What are the distinct order statuses?",
+      "difficulty": "easy",
+      "tags": [
+        "distinct"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT DISTINCT order_status FROM orders",
+      "predicted_sql": "SELECT DISTINCT o.order_status FROM orders o",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3822.9729580052663,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q004",
+      "question": "How many orders were canceled?",
+      "difficulty": "easy",
+      "tags": [
+        "count",
+        "filter"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS canceled_orders\nFROM orders\nWHERE order_status = 'canceled'",
+      "predicted_sql": "SELECT COUNT(DISTINCT o.order_id) AS canceled_orders\nFROM orders o\nWHERE o.order_status = 'canceled'",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3497.4506669968832,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q005",
+      "question": "How many products are there?",
+      "difficulty": "easy",
+      "tags": [
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS product_count FROM products",
+      "predicted_sql": "SELECT COUNT(DISTINCT p.product_id) AS product_count FROM products p",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 1833.5642500023823,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q006",
+      "question": "How many different states do customers come from?",
+      "difficulty": "easy",
+      "tags": [
+        "count",
+        "distinct"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(DISTINCT customer_state) AS state_count FROM customers",
+      "predicted_sql": "SELECT COUNT(DISTINCT c.customer_state) AS different_states FROM customers c",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 6030.8837500051595,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q007",
+      "question": "How many order items have been sold in total?",
+      "difficulty": "easy",
+      "tags": [
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS item_count FROM order_items",
+      "predicted_sql": "SELECT COUNT(*) AS total_order_items FROM order_items",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 1742.7063750074012,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q008",
+      "question": "How many reviews gave a score of 5?",
+      "difficulty": "easy",
+      "tags": [
+        "count",
+        "filter"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS five_star_reviews\nFROM order_reviews\nWHERE review_score = 5",
+      "predicted_sql": "SELECT COUNT(DISTINCT r.review_id) AS review_count FROM order_reviews r WHERE r.review_score = 5",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row 0, column 0: expected 57328, got 56910",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 2097.8342500020517,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q009",
+      "question": "What payment types are available?",
+      "difficulty": "easy",
+      "tags": [
+        "distinct"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT DISTINCT payment_type FROM order_payments",
+      "predicted_sql": "SELECT DISTINCT op.payment_type FROM order_payments op",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 1720.4597500094678,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q010",
+      "question": "How many customers are based in the state of SP?",
+      "difficulty": "easy",
+      "tags": [
+        "count",
+        "filter"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS sp_customers\nFROM customers\nWHERE customer_state = 'SP'",
+      "predicted_sql": "SELECT COUNT(DISTINCT c.customer_unique_id) AS customer_count\nFROM customers c\nWHERE c.customer_state = 'SP'",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row 0, column 0: expected 41746, got 40302",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 2045.6945420010015,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q011",
+      "question": "What is the average freight value per item?",
+      "difficulty": "easy",
+      "tags": [
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT AVG(freight_value) AS avg_freight FROM order_items",
+      "predicted_sql": "SELECT AVG(oi.freight_value) AS average_freight_value\nFROM order_items AS oi",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2293.7444999988656,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q012",
+      "question": "What is the highest price paid for a single item?",
+      "difficulty": "easy",
+      "tags": [
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT MAX(price) AS max_price FROM order_items",
+      "predicted_sql": "SELECT MAX(oi.price) AS highest_price\nFROM order_items AS oi",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2181.5331660036463,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q013",
+      "question": "How many orders are there for each order status?",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT order_status, COUNT(*) AS order_count\nFROM orders\nGROUP BY order_status",
+      "predicted_sql": "SELECT o.order_status, COUNT(o.order_id) AS order_count\nFROM orders AS o\nGROUP BY o.order_status",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2016.557291004574,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q014",
+      "question": "How many orders were placed in 2017?",
+      "difficulty": "medium",
+      "tags": [
+        "date_filter",
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS order_count\nFROM orders\nWHERE strftime('%Y', order_purchase_timestamp) = '2017'",
+      "predicted_sql": "SELECT COUNT(DISTINCT o.order_id) AS total_orders\nFROM orders o\nWHERE strftime('%Y', o.order_purchase_timestamp) = '2017'",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2233.260541004711,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q015",
+      "question": "What is the average review score across all reviews?",
+      "difficulty": "medium",
+      "tags": [
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT AVG(review_score) AS avg_score FROM order_reviews",
+      "predicted_sql": "SELECT AVG(orr.review_score) AS average_review_score FROM order_reviews AS orr",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2343.2789999933448,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q016",
+      "question": "What is the total revenue from all items sold, excluding freight?",
+      "difficulty": "medium",
+      "tags": [
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT SUM(price) AS total_revenue FROM order_items",
+      "predicted_sql": "SELECT SUM(oi.price) AS total_revenue\nFROM order_items AS oi",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 5778.408833997673,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q017",
+      "question": "How many unique customers have placed orders?",
+      "difficulty": "medium",
+      "tags": [
+        "distinct",
+        "join"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers\nFROM orders o\nJOIN customers c ON c.customer_id = o.customer_id",
+      "predicted_sql": "SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers\nFROM customers AS c",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2215.6216250004945,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q018",
+      "question": "Which are the top 5 states by number of customers?",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "order_by",
+        "limit"
+      ],
+      "ordered": true,
+      "gold_sql": "SELECT customer_state, COUNT(*) AS customer_count\nFROM customers\nGROUP BY customer_state\nORDER BY customer_count DESC, customer_state ASC\nLIMIT 5",
+      "predicted_sql": "SELECT c.customer_state, COUNT(DISTINCT c.customer_unique_id) AS customer_count\nFROM customers AS c\nGROUP BY c.customer_state\nORDER BY customer_count DESC\nLIMIT 5",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row 0, column 1: expected 41746, got 40302",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 2478.9954999869224,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q019",
+      "question": "What is the average payment value for each payment type?",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT payment_type, AVG(payment_value) AS avg_payment\nFROM order_payments\nGROUP BY payment_type",
+      "predicted_sql": "SELECT op.payment_type, AVG(op.payment_value) AS average_payment_value\nFROM order_payments AS op\nGROUP BY op.payment_type",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3335.8433750108816,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q020",
+      "question": "How many orders were placed each month in 2018?",
+      "difficulty": "medium",
+      "tags": [
+        "date_filter",
+        "group_by"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT strftime('%Y-%m', order_purchase_timestamp) AS month,\n       COUNT(*) AS order_count\nFROM orders\nWHERE strftime('%Y', order_purchase_timestamp) = '2018'\nGROUP BY month",
+      "predicted_sql": "SELECT strftime('%Y-%m', o.order_purchase_timestamp) AS month, COUNT(o.order_id) AS order_count\nFROM orders o\nWHERE strftime('%Y', o.order_purchase_timestamp) = '2018'\nGROUP BY month\nORDER BY month",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3454.0946659981273,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q021",
+      "question": "How many orders contain more than one item?",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "having",
+        "subquery"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS multi_item_orders\nFROM (\n  SELECT order_id\n  FROM order_items\n  GROUP BY order_id\n  HAVING COUNT(*) > 1\n)",
+      "predicted_sql": "SELECT COUNT(DISTINCT oi.order_id) AS order_count\nFROM order_items AS oi\nGROUP BY oi.order_id\nHAVING COUNT(oi.order_item_id) > 1",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row count differs (expected 1, got 9803)",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 6269.9317910009995,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q022",
+      "question": "List the top 10 cities by number of customers.",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "order_by",
+        "limit"
+      ],
+      "ordered": true,
+      "gold_sql": "SELECT customer_city, COUNT(*) AS customer_count\nFROM customers\nGROUP BY customer_city\nORDER BY customer_count DESC, customer_city ASC\nLIMIT 10",
+      "predicted_sql": "SELECT c.customer_city, COUNT(DISTINCT c.customer_unique_id) AS customer_count\nFROM customers AS c\nGROUP BY c.customer_city\nORDER BY customer_count DESC\nLIMIT 10",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row 0, column 1: expected 15540, got 14984",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 2708.0895839899313,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q023",
+      "question": "How many delivered orders were there in 2018?",
+      "difficulty": "medium",
+      "tags": [
+        "date_filter",
+        "filter",
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS delivered_2018\nFROM orders\nWHERE order_status = 'delivered'\n  AND strftime('%Y', order_purchase_timestamp) = '2018'",
+      "predicted_sql": "SELECT COUNT(DISTINCT o.order_id) AS delivered_orders_count\nFROM orders o\nWHERE o.order_status = 'delivered' AND strftime('%Y', o.order_purchase_timestamp) = '2018'",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2357.3517910117516,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q024",
+      "question": "What is the average number of installments for credit card payments?",
+      "difficulty": "medium",
+      "tags": [
+        "filter",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT AVG(payment_installments) AS avg_installments\nFROM order_payments\nWHERE payment_type = 'credit_card'",
+      "predicted_sql": "SELECT AVG(op.payment_installments) AS average_installments\nFROM order_payments AS op\nWHERE op.payment_type = 'credit_card'",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2144.658374993014,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q025",
+      "question": "How many products are there in each product category?",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT product_category_name, COUNT(*) AS product_count\nFROM products\nGROUP BY product_category_name",
+      "predicted_sql": "SELECT pt.product_category_name_english, COUNT(pi.product_id) AS product_count\nFROM products AS pi\nJOIN product_category_translation AS pt ON pi.product_category_name = pt.product_category_name\nGROUP BY pt.product_category_name_english",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row count differs (expected 74, got 71)",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 3037.044208002044,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q026",
+      "question": "How many orders received a review score of 2 or lower?",
+      "difficulty": "medium",
+      "tags": [
+        "filter",
+        "count",
+        "distinct"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(DISTINCT order_id) AS poor_reviewed_orders\nFROM order_reviews\nWHERE review_score <= 2",
+      "predicted_sql": "SELECT COUNT(DISTINCT ordr.order_id) AS order_count\nFROM order_reviews ordr\nWHERE ordr.review_score <= 2",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2282.3340420000022,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q027",
+      "question": "What is the total revenue generated by sellers in each state?",
+      "difficulty": "medium",
+      "tags": [
+        "join",
+        "group_by",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT s.seller_state, SUM(oi.price) AS revenue\nFROM order_items oi\nJOIN sellers s ON s.seller_id = oi.seller_id\nGROUP BY s.seller_state",
+      "predicted_sql": "SELECT s.seller_state, SUM(oi.price) AS total_revenue\nFROM order_items AS oi\nJOIN orders AS o ON oi.order_id = o.order_id\nJOIN sellers AS s ON oi.seller_id = s.seller_id\nWHERE o.order_status = 'delivered'\nGROUP BY s.seller_state",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row count differs (expected 23, got 22)",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 7253.453333003563,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q028",
+      "question": "What is the average price of items sold by each seller state?",
+      "difficulty": "medium",
+      "tags": [
+        "join",
+        "group_by",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT s.seller_state, AVG(oi.price) AS avg_price\nFROM order_items oi\nJOIN sellers s ON s.seller_id = oi.seller_id\nGROUP BY s.seller_state",
+      "predicted_sql": "SELECT s.seller_state, AVG(oi.price) AS average_price\nFROM order_items AS oi\nJOIN sellers AS s ON oi.seller_id = s.seller_id\nGROUP BY s.seller_state",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3111.2105419888394,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q029",
+      "question": "Which 5 sellers have shipped the most items?",
+      "difficulty": "medium",
+      "tags": [
+        "group_by",
+        "order_by",
+        "limit"
+      ],
+      "ordered": true,
+      "gold_sql": "SELECT seller_id, COUNT(*) AS item_count\nFROM order_items\nGROUP BY seller_id\nORDER BY item_count DESC, seller_id ASC\nLIMIT 5",
+      "predicted_sql": "SELECT oi.seller_id, COUNT(oi.order_item_id) AS total_items\nFROM order_items AS oi\nGROUP BY oi.seller_id\nORDER BY total_items DESC\nLIMIT 5",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 4707.918082989636,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q030",
+      "question": "What is the total revenue for each product category, using English category names?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "group_by",
+        "aggregate",
+        "translation"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT t.product_category_name_english AS category,\n       SUM(oi.price) AS revenue\nFROM order_items oi\nJOIN products p ON p.product_id = oi.product_id\nJOIN product_category_translation t\n  ON t.product_category_name = p.product_category_name\nGROUP BY t.product_category_name_english",
+      "predicted_sql": "SELECT pct.product_category_name_english, SUM(oi.price) AS total_revenue\nFROM order_items oi\nJOIN products p ON oi.product_id = p.product_id\nJOIN product_category_translation pct ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 6027.16541699192,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q031",
+      "question": "Which are the top 5 English product categories by number of items sold?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "group_by",
+        "order_by",
+        "limit",
+        "translation"
+      ],
+      "ordered": true,
+      "gold_sql": "SELECT t.product_category_name_english AS category,\n       COUNT(*) AS items_sold\nFROM order_items oi\nJOIN products p ON p.product_id = oi.product_id\nJOIN product_category_translation t\n  ON t.product_category_name = p.product_category_name\nGROUP BY t.product_category_name_english\nORDER BY items_sold DESC, category ASC\nLIMIT 5",
+      "predicted_sql": "SELECT pct.product_category_name_english, COUNT(oi.order_item_id) AS items_sold\nFROM order_items AS oi\nJOIN products AS p ON oi.product_id = p.product_id\nJOIN product_category_translation AS pct ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english\nORDER BY items_sold DESC\nLIMIT 5",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 6564.350375003414,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q032",
+      "question": "What is the average review score for each English product category?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "group_by",
+        "aggregate",
+        "translation"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT t.product_category_name_english AS category,\n       AVG(r.review_score) AS avg_score\nFROM order_reviews r\nJOIN orders o ON o.order_id = r.order_id\nJOIN order_items oi ON oi.order_id = o.order_id\nJOIN products p ON p.product_id = oi.product_id\nJOIN product_category_translation t\n  ON t.product_category_name = p.product_category_name\nGROUP BY t.product_category_name_english",
+      "predicted_sql": "SELECT pct.product_category_name_english, AVG(orv.review_score) AS average_review_score\nFROM order_reviews AS orv\nJOIN orders AS o ON orv.order_id = o.order_id\nJOIN order_items AS oi ON o.order_id = oi.order_id\nJOIN products AS p ON oi.product_id = p.product_id\nJOIN product_category_translation AS pct ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 4517.665208011749,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q033",
+      "question": "What is the average number of days between purchase and delivery for delivered orders?",
+      "difficulty": "hard",
+      "tags": [
+        "date_math",
+        "filter",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT AVG(julianday(order_delivered_customer_date)\n           - julianday(order_purchase_timestamp)) AS avg_delivery_days\nFROM orders\nWHERE order_status = 'delivered'\n  AND order_delivered_customer_date IS NOT NULL",
+      "predicted_sql": "SELECT AVG(julianday(o.order_delivered_customer_date) - julianday(o.order_purchase_timestamp)) AS average_days\nFROM orders o\nWHERE o.order_status = 'delivered'",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2207.6220419985475,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q034",
+      "question": "How many customers have placed more than one order?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "group_by",
+        "having",
+        "subquery"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS repeat_customers\nFROM (\n  SELECT c.customer_unique_id\n  FROM orders o\n  JOIN customers c ON c.customer_id = o.customer_id\n  GROUP BY c.customer_unique_id\n  HAVING COUNT(*) > 1\n)",
+      "predicted_sql": "SELECT COUNT(DISTINCT c.customer_unique_id) AS customer_count\nFROM customers AS c\nJOIN orders AS o ON c.customer_id = o.customer_id\nGROUP BY c.customer_unique_id\nHAVING COUNT(o.order_id) > 1",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row count differs (expected 1, got 2997)",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 4540.168499996071,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q035",
+      "question": "What was the total revenue for each month of 2017?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "date_filter",
+        "group_by",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT strftime('%Y-%m', o.order_purchase_timestamp) AS month,\n       SUM(oi.price) AS revenue\nFROM order_items oi\nJOIN orders o ON o.order_id = oi.order_id\nWHERE strftime('%Y', o.order_purchase_timestamp) = '2017'\nGROUP BY month",
+      "predicted_sql": "SELECT strftime('%Y-%m', o.order_purchase_timestamp) AS month, SUM(oi.price) AS total_revenue\nFROM orders o\nJOIN order_items oi ON o.order_id = oi.order_id\nWHERE strftime('%Y', o.order_purchase_timestamp) = '2017'\nGROUP BY month\nORDER BY month",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 3643.1319169932976,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q036",
+      "question": "What percentage of delivered orders arrived later than the estimated delivery date?",
+      "difficulty": "hard",
+      "tags": [
+        "conditional_aggregate",
+        "date_math",
+        "filter"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT 100.0 * SUM(\n         CASE WHEN julianday(order_delivered_customer_date)\n                   > julianday(order_estimated_delivery_date)\n              THEN 1 ELSE 0 END\n       ) / COUNT(*) AS pct_late\nFROM orders\nWHERE order_status = 'delivered'\n  AND order_delivered_customer_date IS NOT NULL",
+      "predicted_sql": "SELECT \n  (COUNT(CASE WHEN o.order_status = 'delivered' AND o.order_delivered_customer_date > o.order_estimated_delivery_date THEN 1 END) * 100.0 / COUNT(CASE WHEN o.order_status = 'delivered' THEN 1 END)) AS late_delivery_percentage\nFROM \n  orders AS o",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row 0, column 0: expected 8.112366538820359, got 8.111693857667033 (would match at tolerance 0.005)",
+      "attempts": 1,
+      "failure_class": "rounding",
+      "latency_ms": 3544.848916004412,
+      "both_empty": false,
+      "near_miss": true,
+      "order_only": false
+    },
+    {
+      "id": "q037",
+      "question": "What is the average number of items per order?",
+      "difficulty": "hard",
+      "tags": [
+        "subquery",
+        "aggregate"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT AVG(item_count) AS avg_items_per_order\nFROM (\n  SELECT order_id, COUNT(*) AS item_count\n  FROM order_items\n  GROUP BY order_id\n)",
+      "predicted_sql": "SELECT AVG(item_count) AS average_items_per_order\nFROM (\n  SELECT COUNT(oi.order_item_id) AS item_count\n  FROM order_items AS oi\n  GROUP BY oi.order_id\n) AS order_item_counts",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2135.9656660060864,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q038",
+      "question": "Which 3 customer states have the highest average order value?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "group_by",
+        "order_by",
+        "limit",
+        "subquery"
+      ],
+      "ordered": true,
+      "gold_sql": "SELECT customer_state, AVG(order_total) AS avg_order_value\nFROM (\n  SELECT c.customer_state AS customer_state,\n         o.order_id AS order_id,\n         SUM(oi.price) AS order_total\n  FROM orders o\n  JOIN customers c ON c.customer_id = o.customer_id\n  JOIN order_items oi ON oi.order_id = o.order_id\n  GROUP BY o.order_id, c.customer_state\n)\nGROUP BY customer_state\nORDER BY avg_order_value DESC, customer_state ASC\nLIMIT 3",
+      "predicted_sql": "SELECT c.customer_state, AVG(op.payment_value) AS average_order_value\nFROM customers c\nJOIN orders o ON c.customer_id = o.customer_id\nJOIN order_payments op ON o.order_id = op.order_id\nGROUP BY c.customer_state\nORDER BY average_order_value DESC\nLIMIT 3",
+      "correct": false,
+      "kind": "mismatch",
+      "reason": "row 0, column 1: expected 216.6693233082707, got 248.32582456140352",
+      "attempts": 1,
+      "failure_class": "wrong_result",
+      "latency_ms": 4000.2634580014274,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q039",
+      "question": "How many products have never been ordered?",
+      "difficulty": "hard",
+      "tags": [
+        "left_join",
+        "null_check",
+        "count"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT COUNT(*) AS never_ordered\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.product_id\nWHERE oi.product_id IS NULL",
+      "predicted_sql": "SELECT COUNT(DISTINCT p.product_id) AS never_ordered_product_count\nFROM products p\nLEFT JOIN order_items oi ON p.product_id = oi.product_id\nWHERE oi.order_id IS NULL",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2135.3300829941873,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q040",
+      "question": "What is the average time in days between order purchase and order approval?",
+      "difficulty": "hard",
+      "tags": [
+        "date_math",
+        "aggregate",
+        "null_check"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT AVG(julianday(order_approved_at)\n           - julianday(order_purchase_timestamp)) AS avg_approval_days\nFROM orders\nWHERE order_approved_at IS NOT NULL",
+      "predicted_sql": "SELECT AVG(julianday(o.order_approved_at) - julianday(o.order_purchase_timestamp)) AS average_days\nFROM orders AS o",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2464.0755409927806,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q041",
+      "question": "Which 5 English product categories have the worst average review score?",
+      "difficulty": "hard",
+      "tags": [
+        "join",
+        "group_by",
+        "order_by",
+        "limit",
+        "translation"
+      ],
+      "ordered": true,
+      "gold_sql": "SELECT t.product_category_name_english AS category,\n       AVG(r.review_score) AS avg_score\nFROM order_reviews r\nJOIN orders o ON o.order_id = r.order_id\nJOIN order_items oi ON oi.order_id = o.order_id\nJOIN products p ON p.product_id = oi.product_id\nJOIN product_category_translation t\n  ON t.product_category_name = p.product_category_name\nGROUP BY t.product_category_name_english\nORDER BY avg_score ASC, category ASC\nLIMIT 5",
+      "predicted_sql": "SELECT pct.product_category_name_english, AVG(orv.review_score) AS average_review_score\nFROM order_reviews AS orv\nJOIN orders AS o ON orv.order_id = o.order_id\nJOIN order_items AS oi ON o.order_id = oi.order_id\nJOIN products AS p ON oi.product_id = p.product_id\nJOIN product_category_translation AS pct ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english\nORDER BY average_review_score ASC\nLIMIT 5",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 4603.359792003175,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    },
+    {
+      "id": "q042",
+      "question": "What share of total payment value comes from each payment type, as a percentage?",
+      "difficulty": "hard",
+      "tags": [
+        "group_by",
+        "aggregate",
+        "subquery",
+        "percentage"
+      ],
+      "ordered": false,
+      "gold_sql": "SELECT payment_type,\n       100.0 * SUM(payment_value)\n         / (SELECT SUM(payment_value) FROM order_payments) AS pct_of_total\nFROM order_payments\nGROUP BY payment_type",
+      "predicted_sql": "SELECT op.payment_type, \n       (SUM(op.payment_value) * 100.0 / (SELECT SUM(payment_value) FROM order_payments)) AS payment_share_percentage\nFROM order_payments AS op\nGROUP BY op.payment_type",
+      "correct": true,
+      "kind": "exact",
+      "reason": null,
+      "attempts": 1,
+      "failure_class": null,
+      "latency_ms": 2989.2065830063075,
+      "both_empty": false,
+      "near_miss": false,
+      "order_only": false
+    }
+  ]
+}
