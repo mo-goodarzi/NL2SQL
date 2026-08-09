@@ -33,7 +33,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 #: Set this to call a separately deployed API instead of running in-process.
 API_URL = os.getenv("API_URL", "").rstrip("/")
 
-REPO_URL = os.getenv("REPO_URL", "https://github.com/your-username/nl2sql-agent")
+REPO_URL = os.getenv("REPO_URL", "https://github.com/mo-goodarzi/NL2SQL")
 
 EXAMPLES = [
     "How many orders are in the database?",
