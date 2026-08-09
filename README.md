@@ -1,5 +1,9 @@
 # NL2SQL — Text-to-SQL Analytics Agent
 
+**[Live demo](https://ui-production-243e.up.railway.app/)** ·
+[API](https://nl2sql-production-557e.up.railway.app/docs) — deployed on
+Railway, see [Deploying to Railway](#deploying-to-railway).
+
 Ask a plain-English question about a Brazilian e-commerce dataset. A LangGraph
 agent inspects the schema, writes SQLite, runs it **read-only**, and — the
 point of the project — reads its own database errors and rewrites the query
