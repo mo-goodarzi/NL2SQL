@@ -69,13 +69,11 @@ Full JSON reports — including per-question SQL, failure reasons, and the
 config/prompt-version/git-commit each number was produced under — are in
 [`eval/reports/`](eval/reports/).
 
-**Reading the trajectory:** self-correction is the reliable lever on both
-models (+7–9pp over baseline). Schema retrieval alone added *nothing* on top
+**Reading the trajectory:** self-correction is the reliable lever on both models (+9pp on gpt-4o-mini, +5pp on gpt-5-mini over baseline). Schema retrieval alone added *nothing* on top
 of self-correction for either model on this test set — the full schema
 (~2.2KB rendered) is already small enough that trimming it doesn't help, and
 Step 4's foreign-key-expansion safety net (see below) means retrieval mostly
-just reproduces the full schema on multi-table questions anyway. Few-shot
-examples were the biggest single lever on both models.
+just reproduces the full schema on multi-table questions anyway. Few-shot examples were the biggest single lever on gpt-5-mini (+9pp); on gpt-4o-mini they added +3pp, about one question on this 42-question set.
 
 One caveat on the `gpt-5-mini` numbers specifically: `settings.temperature =
 0.0` — the pin the whole methodology leans on for reproducibility — is
